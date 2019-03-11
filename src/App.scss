@@ -1,0 +1,479 @@
+/* eslint-disable */
+
+article,aside,details,figcaption,figure,footer,header,hgroup,nav,section,summary{display:block;}audio,canvas,video{display:inline-block;}audio:not([controls]){display:none;height:0;}[hidden]{display:none;}html{font-family:sans-serif;-webkit-text-size-adjust:100%;-ms-text-size-adjust:100%;}a:focus{outline:thin dotted;}a:active,a:hover{outline:0;}h1{font-size:2em;}abbr[title]{border-bottom:1px dotted;}b,strong{font-weight:700;}dfn{font-style:italic;}mark{background:#ff0;color:#000;}code,kbd,pre,samp{font-family:monospace, serif;font-size:1em;}pre{white-space:pre-wrap;word-wrap:break-word;}q{quotes:\201C \201D \2018 \2019;}small{font-size:80%;}sub,sup{font-size:75%;line-height:0;position:relative;vertical-align:baseline;}sup{top:-.5em;}sub{bottom:-.25em;}img{border:0;}svg:not(:root){overflow:hidden;}fieldset{border:1px solid silver;margin:0 2px;padding:.35em .625em .75em;}button,input,select,textarea{font-family:inherit;font-size:100%;margin:0;}button,input{line-height:normal;}button,html input[type=button],/* 1 */
+input[type=reset],input[type=submit]{-webkit-appearance:button;cursor:pointer;}button[disabled],input[disabled]{cursor:default;}input[type=checkbox],input[type=radio]{box-sizing:border-box;padding:0;}input[type=search]{-webkit-appearance:textfield;-moz-box-sizing:content-box;-webkit-box-sizing:content-box;box-sizing:content-box;}input[type=search]::-webkit-search-cancel-button,input[type=search]::-webkit-search-decoration{-webkit-appearance:none;}textarea{overflow:auto;vertical-align:top;}table{border-collapse:collapse;border-spacing:0;}body,figure{margin:0;}legend,button::-moz-focus-inner,input::-moz-focus-inner{border:0;padding:0;}
+
+.clearfix:after {visibility: hidden; display: block; font-size: 0; content: " "; clear: both; height: 0; }
+
+* { -moz-box-sizing: border-box; -webkit-box-sizing: border-box; box-sizing: border-box; }
+
+@mixin flexbox {
+    display: -webkit-box;
+    display: -webkit-flex;
+    display: -moz-flex;
+    display: -ms-flexbox;
+    display: flex;
+  }
+  
+  %flexbox { @include flexbox; }
+  
+  //----------------------------------
+  
+  @mixin inline-flex {
+    display: -webkit-inline-box;
+    display: -webkit-inline-flex;
+    display: -moz-inline-flex;
+    display: -ms-inline-flexbox;
+    display: inline-flex;
+  }
+  
+  %inline-flex { @include inline-flex; }
+  
+  @mixin flex-direction($value: row) {
+    @if $value == row-reverse {
+      -webkit-box-direction: reverse;
+      -webkit-box-orient: horizontal;
+    } @else if $value == column {
+      -webkit-box-direction: normal;
+      -webkit-box-orient: vertical;
+    } @else if $value == column-reverse {
+      -webkit-box-direction: reverse;
+      -webkit-box-orient: vertical;
+    } @else {
+      -webkit-box-direction: normal;
+      -webkit-box-orient: horizontal;
+    }
+    -webkit-flex-direction: $value;
+    -moz-flex-direction: $value;
+    -ms-flex-direction: $value;
+    flex-direction: $value;
+  }
+    // Shorter version:
+    @mixin flex-dir($args...) { @include flex-direction($args...); }
+  
+  //----------------------------------------------------------------------
+  
+  
+  @mixin flex-wrap($value: nowrap) {
+    // No Webkit Box fallback.
+    -webkit-flex-wrap: $value;
+    -moz-flex-wrap: $value;
+    @if $value == nowrap {
+      -ms-flex-wrap: none;
+    } @else {
+      -ms-flex-wrap: $value;
+    }
+    flex-wrap: $value;
+  }
+  
+  @mixin flex-flow($values: (row nowrap)) {
+    // No Webkit Box fallback.
+    -webkit-flex-flow: $values;
+    -moz-flex-flow: $values;
+    -ms-flex-flow: $values;
+    flex-flow: $values;
+  }
+  @mixin order($int: 0) {
+    -webkit-box-ordinal-group: $int + 1;
+    -webkit-order: $int;
+    -moz-order: $int;
+    -ms-flex-order: $int;
+    order: $int;
+  }
+  @mixin flex-grow($int: 0) {
+    -webkit-box-flex: $int;
+    -webkit-flex-grow: $int;
+    -moz-flex-grow: $int;
+    -ms-flex-positive: $int;
+    flex-grow: $int;
+  }
+  @mixin flex-shrink($int: 1) {
+    -webkit-flex-shrink: $int;
+    -moz-flex-shrink: $int;
+    -ms-flex-negative: $int;
+    flex-shrink: $int;
+  }
+  @mixin flex-basis($value: auto) {
+    -webkit-flex-basis: $value;
+    -moz-flex-basis: $value;
+    -ms-flex-preferred-size: $value;
+    flex-basis: $value;
+  }
+  @mixin flex($fg: 1, $fs: null, $fb: null) {
+  
+    // Set a variable to be used by box-flex properties
+    $fg-boxflex: $fg;
+  
+    // Box-Flex only supports a flex-grow value so let's grab the
+    // first item in the list and just return that.
+    @if type-of($fg) == 'list' {
+      $fg-boxflex: nth($fg, 1);
+    }
+  
+    -webkit-box-flex: $fg-boxflex;
+    -webkit-flex: $fg $fs $fb;
+    -moz-box-flex: $fg-boxflex;
+    -moz-flex: $fg $fs $fb;
+    -ms-flex: $fg $fs $fb;
+    flex: $fg $fs $fb;
+  }
+  
+  @mixin justify-content($value: flex-start) {
+    @if $value == flex-start {
+      -webkit-box-pack: start;
+      -ms-flex-pack: start;
+    } @else if $value == flex-end {
+      -webkit-box-pack: end;
+      -ms-flex-pack: end;
+    } @else if $value == space-between {
+      -webkit-box-pack: justify;
+      -ms-flex-pack: justify;
+    } @else if $value == space-around {
+      -ms-flex-pack: distribute;
+    } @else {
+      -webkit-box-pack: $value;
+      -ms-flex-pack: $value;
+    }
+    -webkit-justify-content: $value;
+    -moz-justify-content: $value;
+    justify-content: $value;
+  }
+  @mixin align-items($value: stretch) {
+    @if $value == flex-start {
+      -webkit-box-align: start;
+      -ms-flex-align: start;
+    } @else if $value == flex-end {
+      -webkit-box-align: end;
+      -ms-flex-align: end;
+    } @else {
+      -webkit-box-align: $value;
+      -ms-flex-align: $value;
+    }
+    -webkit-align-items: $value;
+    -moz-align-items: $value;
+    align-items: $value;
+  }
+  @mixin align-self($value: auto) {
+    // No Webkit Box Fallback.
+    -webkit-align-self: $value;
+    -moz-align-self: $value;
+    @if $value == flex-start {
+      -ms-flex-item-align: start;
+    } @else if $value == flex-end {
+      -ms-flex-item-align: end;
+    } @else {
+      -ms-flex-item-align: $value;
+    }
+    align-self: $value;
+  }
+  @mixin align-content($value: stretch) {
+    // No Webkit Box Fallback.
+    -webkit-align-content: $value;
+    -moz-align-content: $value;
+    @if $value == flex-start {
+      -ms-flex-line-pack: start;
+    } @else if $value == flex-end {
+      -ms-flex-line-pack: end;
+    } @else {
+      -ms-flex-line-pack: $value;
+    }
+    align-content: $value;
+  }
+
+  // BASIC STYLES
+  $mobile-breakpoint: 700px; // Keep synced with variables.liquid and javascript
+
+
+  @mixin desktop() {
+    @media (min-width: $mobile-breakpoint + 1) {
+      @content
+    }
+  }
+  
+  @mixin mobile() {
+    @media (max-width: $mobile-breakpoint) {
+      @content
+    }
+  }
+
+@import url('https://fonts.googleapis.com/css?family=Roboto:100');
+.App {
+  text-align: center;
+}
+
+@keyframes App-logo-spin {
+  from {
+    // transform: rotate(0deg);
+  }
+  to {
+    // transform: rotate(360deg);
+  }
+}
+
+html, body {
+  line-height: 1.8;
+  letter-spacing: 0.1em;
+  font-family: 'Roboto', sans-serif;
+  color: white;
+  font-weight: bold;
+  font-size: 15px;
+  letter-spacing:0.1em !important;
+  line-height:1.5;
+  width:100vw;
+  background-color: navy;
+  background-image: url("background.png");
+  background-size: cover;
+  top:0;
+  bottom:0;
+  right:0;
+  left:0;
+  min-height:100vh;
+  background-repeat: no-repeat;
+
+}
+
+.wrapper {
+min-height:100vh;
+  width:100%;
+  @include flexbox();
+  @include justify-content(space-between);
+  @include flex-direction(column);
+}
+
+ul, ol {
+  list-style-type: none;
+  margin:0;
+  padding: 0;
+}
+li {
+  list-style:none;
+
+}
+a {
+  text-decoration: none;
+  color: white;
+}
+
+input {
+  outline: 0px transparent;
+  border:0px;
+}
+// eslint-disable-next-line 
+// HEADER STYLES
+header {
+  @include flexbox();
+  @include flex-direction(row);
+  @include justify-content(space-between);
+  @include mobile {
+    width:100vw;
+    @include flex-direction(column);
+    @include align-items(center);
+  }
+  .appLogo {
+  padding:2vw;
+    height:90px;
+    width:360px;
+    background-size:100%;
+    @include mobile {
+      padding:0;
+      padding-top:4vw;
+      transform: scale(0.85);
+    }
+
+  }
+  .topNav {
+    padding:2vw;
+    @include flexbox();
+    li {
+      padding-left:2vw;
+    }
+  }
+}
+// FORM , MAIN CONTENT
+.container form {
+  @include flexbox;
+  flex-direction:(column);
+  margin: 0 auto;
+  @include align-items(center);
+  @include justify-content(center);
+  .names {
+    @include flexbox();
+    @include align-items(flex-end);
+    width:50vw;
+    @media(max-width:1042px) {
+      width:90vw;
+    }
+    @include mobile {
+      @include flex-direction(column);
+    }
+   .half {
+     @include flexbox();
+     @include align-items(center);
+     input {
+       background:transparent;
+       border-bottom: 1px solid white;
+       width:24vw;
+       padding-top:4vw;
+       color: white;
+       font-weight: bolder;
+       letter-spacing: 0.1em;
+       @media(max-width:1042px) {
+         width:45vw;
+         padding-top:10vw;
+       }
+       @include mobile {
+         padding-top:20px;
+         width:90vw;
+         @include mobile {
+           padding-top: 45px;
+         }
+       }
+       &::placeholder {
+         color: white;
+         font-size: 15px;
+         font-weight:bold;
+         letter-spacing: 0.1em;
+       }
+     }
+     .r {
+       margin-right:1vw;
+       @include mobile {
+         margin-right:0;
+       }
+     }
+     .l {
+       margin-left:1vw;
+       @include mobile {
+         margin-left:0px;
+       }
+     }
+   }
+  }
+}
+.reg {
+  display:inline;
+  border-bottom: 1px solid;
+}
+
+// DROPDOWN STYLES
+
+.has-submenu {
+  @include flexbox();
+  @include flex-direction(row);
+  padding-top:4vw;
+  @media(max-width:1042px) {
+    padding-top:10vw;
+  }
+  @include mobile {
+    padding-bottom:20vh;
+  }
+  li {
+    border-bottom: 1px solid white;
+    @include flexbox();
+    width:11vw;
+    position: relative;
+    @media(max-width:1042px) {
+      width:20vw;
+    }
+    @include mobile {
+      width:44vw;
+      padding-top:45px;
+    }
+    a {
+      color:white;
+      font-size:15px;
+      font-weight:bold;
+      &:hover {
+        transition: 0.3s ease-all;
+      }
+      &::after {
+        content: " ↓";
+      }
+    }
+    ul {
+      position:absolute;
+      display:none;
+      font-size:14px;
+      top:32px;
+      transition: 0.3s ease all;
+      @include mobile {
+        top:70px;
+      }
+      li {
+        position:relative;
+        padding:5px;
+        transition: 0.3s ease all;
+        &:hover,
+        &:active {
+          background:  #0f1f3e;
+          color: white;
+          transition: 0.3s ease all;
+        }
+      }
+    }
+    &:hover,
+    &:active {
+      ul {
+        display:block;
+      }
+    }
+  }
+
+}
+.gender {
+  margin-right:1vw;
+}
+.interests {
+  margin-left:1vw;
+}
+
+// SERVICE TERMS
+.serviceTerms p {
+  font-size:12px;
+  line-height:1.1;
+  font-size: 10px;
+  line-height: 1;
+  padding: 0;
+  margin: 5px;
+  font-weight: bolder;
+  a {
+    border-bottom:1px solid;
+  }
+}
+
+.serviceTerms {
+  padding-bottom:5vw;
+}
+
+// FOOTER STYLES 
+.footer {
+  @include flexbox();
+  @include flex-direction(column);
+  @include align-items(center);
+  @include justify-content(center);
+}
+
+.firstRow ul {
+  @include flexbox();
+  @include flex-direction(row);
+  display: inline-flex;
+  li {
+    padding:10px;
+    a {
+      cursor: crosshair;
+    }
+  }
+}
+
+.secondRow ul {
+  @include flexbox();
+  display: inline-flex;
+  li {
+    padding:10px;
+    a {
+      font-size:12px;
+      cursor: crosshair;
+    }
+  }
+
+}
